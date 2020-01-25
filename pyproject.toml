@@ -6,9 +6,16 @@ authors = ["harit <harit.c@outlook.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
+pythainav = "^0.1.3"
+tomlkit = "^0.5.8"
 
 [tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+recport = 'recport.main:run1'
+showport = 'recport.main:run2'
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
