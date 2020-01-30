@@ -8,8 +8,10 @@ authors = ["harit <harit.c@outlook.com>"]
 python = "^3.7"
 pythainav = "^0.1.3"
 tomlkit = "^0.5.8"
+loguru = "^0.4.1"
 
 [tool.poetry.dev-dependencies]
+pytest = "^5.3.5"
 
 [tool.poetry.scripts]
 recport = 'recport.main:run1'
