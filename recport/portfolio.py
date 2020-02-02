@@ -36,6 +36,21 @@ class Portfolio:
 
         self.port_name = port_name
 
+    def buy(self, symbol: str, quote: float, unit: float, transaction_amount: float):
+        pass
+
+    def sell(self):
+        pass
+
+    def r_int(self):
+        pass
+
+    def deposit(self):
+        pass
+
+    def withdraw():
+        pass
+
 if __name__ == "__main__":
     portfolio = Portfolio('jack')
 
