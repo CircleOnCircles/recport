@@ -5,6 +5,7 @@ from tomlkit import document
 from tomlkit import nl
 from tomlkit import table
 
+
 class Portfolio:
     """Portfolio class represents a real portfolio
     """
@@ -27,23 +28,22 @@ class Portfolio:
         # read portfolio .toml file if exists
         if file_path.exists():
             # read .toml portfolio config
-            logger.debug('Pretend to read file')
+            logger.debug("Pretend to read file")
 
         raise NotImplementedError
 
-    def updateTofile(self):
+    def updateToFile(self):
         """ Update/Save data to file, create one if not exists """
         port_name = self.port_name
         file_path = self.file_path
 
         doc = document()
-        doc.add('port_name',port_name)
+        doc.add("port_name", port_name)
         if not file_path.parent.exists():
             file_path.parent.mkdir(parents=True)
-        with file_path.open(mode='w') as f:
-            
-            f.write(doc.as_string())
+        with file_path.open(mode="w") as f:
 
+            f.write(doc.as_string())
 
     def buy(self, symbol: str, quote: float, unit: float, transaction_amount: float):
         pass
@@ -60,8 +60,6 @@ class Portfolio:
     def withdraw():
         pass
 
+
 if __name__ == "__main__":
-    portfolio = Portfolio('jack')
-
-
-
+    portfolio = Portfolio("jack")
