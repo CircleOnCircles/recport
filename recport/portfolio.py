@@ -16,8 +16,8 @@ class Portfolio:
             port_name {str} -- portfolio name
         """
 
-        file_directory = Path(Path.home() / "recport")
-        file_path = Path(file_directory / f"{port_name}.toml")
+        file_directory = Path.home() / "recport"
+        file_path = file_directory / f"{port_name}.toml"
 
         # read portfolio .toml file if exists
         if file_path.exists():
