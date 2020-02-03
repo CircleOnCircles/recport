@@ -15,26 +15,35 @@ class Portfolio:
         Arguments:
             port_name {str} -- portfolio name
         """
+        self.port_name = port_name
 
         file_directory = Path.home() / "recport"
-        file_path = file_directory / f"{port_name}.toml"
+        self.file_path = file_directory / f"{port_name}.toml"
 
+        self.loadFromFile()
+
+    def loadFromFile(self):
+        """ Load data from file if exists """
         # read portfolio .toml file if exists
         if file_path.exists():
             # read .toml portfolio config
             logger.debug('Pretend to read file')
 
-        # if not, create new portfolio .toml file
-        else:
-            doc = document()
-            doc.add('port_name',port_name)
-            if not file_directory.exists():
-                file_directory.mkdir(parents=True)
-            with Path(file_path).open(mode='w') as f:
-                
-                f.write(doc.as_string())
+        raise NotImplementedError
 
-        self.port_name = port_name
+    def updateTofile(self):
+        """ Update/Save data to file, create one if not exists """
+        port_name = self.port_name
+        file_path = self.file_path
+
+        doc = document()
+        doc.add('port_name',port_name)
+        if not file_path.parent.exists():
+            file_path.parent.mkdir(parents=True)
+        with file_path.open(mode='w') as f:
+            
+            f.write(doc.as_string())
+
 
     def buy(self, symbol: str, quote: float, unit: float, transaction_amount: float):
         pass
