@@ -46,7 +46,7 @@ class Portfolio:
             f.write(doc.as_string())
 
     def buy(self, symbol: str, quote: float, unit: float, transaction_amount: float):
-        """  """
+        """ buy stock/mutual fund function updates transaction in memory """
         pass
 
     def sell(self, symbol: str, quote: float, unit: float, transaction_amount: float):
