@@ -46,18 +46,22 @@ class Portfolio:
             f.write(doc.as_string())
 
     def buy(self, symbol: str, quote: float, unit: float, transaction_amount: float):
+        """  """
         pass
 
-    def sell(self):
+    def sell(self, symbol: str, quote: float, unit: float, transaction_amount: float):
         pass
 
-    def r_int(self):
+    def interest(self, amount: float):
         pass
 
-    def deposit(self):
+    def dividend(self, symbol: str, amount: float):
         pass
 
-    def withdraw():
+    def deposit(self, amount: float):
+        pass
+
+    def withdraw(self, amount: float):
         pass
 
 
