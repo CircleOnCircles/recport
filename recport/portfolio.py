@@ -152,6 +152,9 @@ class Portfolio:
     def withdraw(self, amount: float):
         pass
 
+    def __repr__(self):
+        return f"Portfolio Obj of '{self.port_name}', contains {len(self.assets)} assets and {len(self.transactions)} transac."
+
 
 if __name__ == "__main__":
     portfolio = Portfolio("jack")
