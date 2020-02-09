@@ -1,3 +1,7 @@
+__all__ = ["Transaction", "Asset", "Portfolio"]
+
+from typing import List
+
 from pathlib import Path
 from loguru import logger
 from tomlkit import comment
@@ -8,10 +12,12 @@ from tomlkit import parse
 from dataclasses import dataclass, asdict
 import datetime
 
+
 @dataclass
 class Transaction:
     """Transaction class represents each transaction
     """
+
     transaction_type: str
     transaction_date: datetime.date
     settlement_date: datetime.date  # phase 2
@@ -19,26 +25,34 @@ class Transaction:
     quote: float
     unit: float
     transaction_amount: float
-    fee: float # phase 2
-    pending: bool # phase 2
+    fee: float  # phase 2
+    pending: bool  # phase 2
+
 
 @dataclass
 class Asset:
     """AssetValue class represents value of each asset at calculation time
     """
+
     asset_type: str
     cal_date: datetime.date
     latest_quote_date: datetime.date
-    quote:float
+    quote: float
     unit: float
+
 
 class Portfolio:
     """Portfolio class represents a real portfolio
     """
 
-    def __init__(self, port_name):
+    file_path: Path
+    port_name: str
+    transactions: List[Transaction] = []
+    assets: List[Asset] = []
+
+    def __init__(self, port_name, *, tryToLoad=True):
         """constructor
-        
+
         Arguments:
             port_name {str} -- portfolio name
         """
@@ -47,7 +61,8 @@ class Portfolio:
         file_directory = Path.home() / "recport"
         self.file_path = file_directory / f"{port_name}.toml"
 
-        self.loadFromFile()
+        if tryToLoad:
+            self.loadFromFile()
 
     def loadFromFile(self):
         """ Load data from file if exists """
@@ -64,30 +79,33 @@ class Portfolio:
             for t in doc["transactions"]:
                 transactions.append(
                     Transaction(
-                        transaction_type = t["transaction_type"],
-                        transaction_date = t["transaction_date"],
-                        settlement_date = t["settlement_date"],
-                        symbol = t["symbol"],
-                        quote = t["quote"],
-                        unit = t["unit"],
-                        transaction_amount = t["transaction_amount"],
-                        fee = t["fee"],
-                        pending = t["pending"]
+                        transaction_type=t["transaction_type"],
+                        transaction_date=t["transaction_date"],
+                        settlement_date=t["settlement_date"],
+                        symbol=t["symbol"],
+                        quote=t["quote"],
+                        unit=t["unit"],
+                        transaction_amount=t["transaction_amount"],
+                        fee=t["fee"],
+                        pending=t["pending"],
                     )
                 )
             for a in doc["assets"]:
                 assets.append(
                     Asset(
-                        asset_type = a["asset_type"],
-                        cal_date = a["cal_date"],
-                        latest_quote_date = a["latest_quote_date"],
-                        quote = a["quote"],
-                        unit = a["unit"]
+                        asset_type=a["asset_type"],
+                        cal_date=a["cal_date"],
+                        latest_quote_date=a["latest_quote_date"],
+                        quote=a["quote"],
+                        unit=a["unit"],
                     )
                 )
             self.transactions = transactions
             self.assets = assets
-            
+        else:
+            logger.info(
+                "🎉 Recport welcome you. 🎉  There is no saved file before. Recport will create a new one."
+            )
 
         # raise NotImplementedError
 
@@ -110,6 +128,11 @@ class Portfolio:
 
             f.write(doc.as_string())
 
+    def reset(self):
+        self.file_path.unlink()
+        self.assets = []
+        self.transactions = []
+
     def buy(self, symbol: str, quote: float, unit: float, transaction_amount: float):
         """ buy stock/mutual fund function updates transaction in memory """
         pass
@@ -128,6 +151,9 @@ class Portfolio:
 
     def withdraw(self, amount: float):
         pass
+
+    def __repr__(self):
+        return f"Portfolio Obj of '{self.port_name}', contains {len(self.assets)} assets and {len(self.transactions)} transac."
 
 
 if __name__ == "__main__":

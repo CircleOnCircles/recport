@@ -12,6 +12,7 @@ loguru = "^0.4.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3.5"
+black = {version = "^19.10b0", allow-prereleases = true}
 
 [tool.poetry.scripts]
 recport = 'recport.main:run1'
