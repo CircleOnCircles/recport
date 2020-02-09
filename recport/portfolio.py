@@ -128,6 +128,11 @@ class Portfolio:
 
             f.write(doc.as_string())
 
+    def reset(self):
+        self.file_path.unlink()
+        self.assets = []
+        self.transactions = []
+
     def buy(self, symbol: str, quote: float, unit: float, transaction_amount: float):
         """ buy stock/mutual fund function updates transaction in memory """
         pass
