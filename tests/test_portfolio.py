@@ -11,7 +11,8 @@ def test_major():
         "buy",
         datetime.date(2020, 2, 8),
         datetime.date(2020, 2, 8),
-        "cpall",
+        "stock",
+        "CPALL.BK",
         12.5,
         100,
         1250,
@@ -19,7 +20,7 @@ def test_major():
         False,
     )
     portfolio.transactions.append(t)
-    a = Asset("stock", datetime.date(2020, 2, 8), datetime.date(2020, 2, 8), 12.6, 100)
+    a = Asset("stock", datetime.date(2020, 2, 8), datetime.date(2020, 2, 8), "CPALL.BK", 12.6, 100)
     Portfolio.assets.append(a)
 
     portfolio.updateToFile()

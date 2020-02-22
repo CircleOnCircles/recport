@@ -11,6 +11,16 @@ from tomlkit import table
 from tomlkit import parse
 from dataclasses import dataclass, asdict
 import datetime
+import pandas_datareader as pdr
+import pythainav as nav
+
+
+class SymbolNotFoundError(Exception):
+    pass
+
+
+class GetNAVPriceError(Exception):
+    pass
 
 
 @dataclass
@@ -20,13 +30,14 @@ class Transaction:
 
     transaction_type: str
     transaction_date: datetime.date
-    settlement_date: datetime.date  # phase 2
+    settlement_date: datetime.date  # now eqauls settlement date
+    asset_type: str
     symbol: str
     quote: float
     unit: float
     transaction_amount: float
-    fee: float  # phase 2
-    pending: bool  # phase 2
+    fee: float = 0.0  # phase 2
+    pending: bool = False  # phase 2
 
 
 @dataclass
@@ -37,6 +48,7 @@ class Asset:
     asset_type: str
     cal_date: datetime.date
     latest_quote_date: datetime.date
+    symbol: str
     quote: float
     unit: float
 
@@ -50,7 +62,7 @@ class Portfolio:
     transactions: List[Transaction] = []
     assets: List[Asset] = []
 
-    def __init__(self, port_name, *, tryToLoad=True):
+    def __init__(self, port_name, *, try_to_load=True):
         """constructor
 
         Arguments:
@@ -61,7 +73,7 @@ class Portfolio:
         file_directory = Path.home() / "recport"
         self.file_path = file_directory / f"{port_name}.toml"
 
-        if tryToLoad:
+        if try_to_load:
             self.loadFromFile()
 
     def loadFromFile(self):
@@ -82,6 +94,7 @@ class Portfolio:
                         transaction_type=t["transaction_type"],
                         transaction_date=t["transaction_date"],
                         settlement_date=t["settlement_date"],
+                        asset_type=t["asset_type"],
                         symbol=t["symbol"],
                         quote=t["quote"],
                         unit=t["unit"],
@@ -96,6 +109,7 @@ class Portfolio:
                         asset_type=a["asset_type"],
                         cal_date=a["cal_date"],
                         latest_quote_date=a["latest_quote_date"],
+                        symbol=a["symbol"],
                         quote=a["quote"],
                         unit=a["unit"],
                     )
@@ -133,9 +147,75 @@ class Portfolio:
         self.assets = []
         self.transactions = []
 
-    def buy(self, symbol: str, quote: float, unit: float, transaction_amount: float):
-        """ buy stock/mutual fund function updates transaction in memory """
-        pass
+    def _fetchClosePrice(self, symbol: str, requested_date: datetime.date) -> dict:
+        """internal function to fecth price of stock/mutual fund
+        
+        Returns:
+            float -- stock price / nav
+
+        Raises:
+            GetNAVPriceError -- when the price of requested date is not available
+            SymbolNotFoundError -- when the symbol is not found
+        """
+        requested_str_date = str(requested_date)
+        try:
+            close = float(pdr.get_data_yahoo(symbol)["Close"][requested_str_date])
+            asset_type = "stock"
+
+        # symbol not found in stock market, find it in mutual fund
+        except pdr._utils.RemoteDataError:
+            try:
+                a_nav = nav.get(symbol)
+                if str(a_nav.updated)[:10] != requested_str_date:
+                    raise GetNAVPriceError(
+                        f"NAV for symbol {symbol} on {requested_str_date} is not available!"
+                    )
+                else:
+                    close = a_nav.value
+                    asset_type = "mutual fund"
+
+            # symbol is not valid
+            except KeyError:
+                raise SymbolNotFoundError(f"Symbol {symbol} is not found!")
+
+        # symbol is found in stock market, but the price on the date is not available
+        except KeyError as x:
+            raise GetNAVPriceError(
+                f"Price for symbol {symbol} on {requested_str_date} is not available!"
+            )
+
+        return {"close": close, "asset_type": asset_type}
+
+    def buy(
+        self,
+        symbol: str,
+        quote: float,
+        unit: float,
+        transaction_amount: float,
+        transaction_date: datetime.date,
+    ):
+
+        # recheck if the symbol and price is available for calculation
+        data = self._fetchClosePrice(symbol, transaction_date)
+        asset_type = data["asset_type"]
+        # TODO: Check if there is enough money in the portfolio & if the symbol already exists?
+        
+        # everthing is fine now, add it in transaction
+        transaction = Transaction(
+            "buy",
+            transaction_date,
+            transaction_date,
+            asset_type,
+            symbol,
+            quote,
+            unit,
+            transaction_amount,
+            0.00,
+            False,
+        )
+        self.transactions.append(transaction)
+
+        raise NotImplementedError
 
     def sell(self, symbol: str, quote: float, unit: float, transaction_amount: float):
         pass
@@ -159,4 +239,5 @@ class Portfolio:
 if __name__ == "__main__":
     portfolio = Portfolio("jack")
     logger.debug(portfolio.transactions)
+    portfolio.buy("CPALL.BK", 70.50, 100, 7060, datetime.date(2020, 2, 21))
     portfolio.updateToFile()
